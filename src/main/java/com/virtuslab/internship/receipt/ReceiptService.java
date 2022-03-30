@@ -7,14 +7,14 @@ import org.springframework.stereotype.Service;
 public class ReceiptService {
 
     private final BasketInfo basketInfo;
+    private final ReceiptGenerator receiptGenerator;
 
-    public ReceiptService(BasketInfo basketInfo) {
+    public ReceiptService(BasketInfo basketInfo, ReceiptGenerator receiptGenerator) {
         this.basketInfo = basketInfo;
+        this.receiptGenerator = receiptGenerator;
     }
 
     public Receipt getReceipt() {
-        var receiptGenerator = new ReceiptGenerator();
-
         return receiptGenerator.generate(basketInfo.getBasketInfo());
     }
 }

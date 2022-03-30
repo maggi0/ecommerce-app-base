@@ -4,27 +4,25 @@ import com.virtuslab.internship.basket.Basket;
 import com.virtuslab.internship.discount.FifteenPercentDiscount;
 import com.virtuslab.internship.discount.TenPercentDiscount;
 import com.virtuslab.internship.product.Product;
+import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+@Component
 public class ReceiptGenerator {
 
     public Receipt generate(Basket basket) {
-        FifteenPercentDiscount fifteenPercentDiscount = new FifteenPercentDiscount();
-        TenPercentDiscount tenPercentDiscount = new TenPercentDiscount();
-        List<ReceiptEntry> receiptEntries = new ArrayList<>();
+        var fifteenPercentDiscount = new FifteenPercentDiscount();
+        var tenPercentDiscount = new TenPercentDiscount();
 
         Map<Product, Long> products = basket.getProducts().stream()
                 .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
 
-        for (var entry : products.entrySet()) {
-            ReceiptEntry receiptEntry = new ReceiptEntry(entry.getKey(), entry.getValue().intValue());
-            receiptEntries.add(receiptEntry);
-        }
+        var receiptEntries = products.entrySet().stream()
+                .map(entry -> new ReceiptEntry(entry.getKey(), entry.getValue().intValue()))
+                .toList();
 
         var receipt = new Receipt((receiptEntries));
         receipt = fifteenPercentDiscount.apply(receipt);

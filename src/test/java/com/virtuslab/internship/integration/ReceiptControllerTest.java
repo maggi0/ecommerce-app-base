@@ -1,9 +1,13 @@
 package com.virtuslab.internship.integration;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.virtuslab.internship.basket.BasketInfo;
+import com.virtuslab.internship.receipt.Receipt;
+import com.virtuslab.internship.receipt.ReceiptGenerator;
 import com.virtuslab.internship.receipt.ReceiptService;
 import org.json.JSONObject;
 import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -14,10 +18,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SpringBootTest
 @AutoConfigureMockMvc
-public class ReceiptControllerIntegrationTest {
+public class ReceiptControllerTest {
 
     @Autowired
     private MockMvc mvc;
+
+    @Autowired
+    private ObjectMapper objectMapper;
 
     @Test
     void checkStatusAndReceiptInfo() throws Exception {
@@ -26,13 +33,15 @@ public class ReceiptControllerIntegrationTest {
         var result = mvc.perform(request).andReturn();
         var status = result.getResponse().getStatus();
         var content = result.getResponse().getContentAsString();
-        final var obj = new JSONObject(content);
-        final var jEntries = obj.getJSONArray("entries");
-        final var jDiscounts = obj.getJSONArray("discounts");
+        var receiptResponse = objectMapper.readValue(content, Receipt.class);
+        var entriesResponse = receiptResponse.entries();
+        var discountsResponse = receiptResponse.discounts();
+        var totalPriceResponse = receiptResponse.totalPrice();
 
         //When
         var basketInfo = new BasketInfo();
-        var receiptService = new ReceiptService(basketInfo);
+        var receiptGenerator = new ReceiptGenerator();
+        var receiptService = new ReceiptService(basketInfo, receiptGenerator);
         var receipt = receiptService.getReceipt();
         var entries = receipt.entries();
         var discounts = receipt.discounts();
@@ -40,7 +49,8 @@ public class ReceiptControllerIntegrationTest {
 
         //Then
         assertEquals(200, status);
-        assertEquals(jEntries.length(), entries.size());
-        assertEquals(jDiscounts.length(), discounts.size());
+        assertEquals(entriesResponse, entries);
+        assertEquals(discountsResponse, discounts);
+        assertEquals(totalPriceResponse, totalPrice);
     }
 }

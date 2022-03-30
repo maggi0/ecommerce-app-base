@@ -11,9 +11,10 @@ public class ReceiptServiceTest {
     void shouldContainSameAmountOfProductsAsBasket(){
         //Given
         var basketInfo = new BasketInfo();
+        var receiptGenerator = new ReceiptGenerator();
         var products = basketInfo.getBasketInfo().getProducts();
 
-        var receiptService = new ReceiptService(basketInfo);
+        var receiptService = new ReceiptService(basketInfo, receiptGenerator);
 
         //When
         var receipt = receiptService.getReceipt();

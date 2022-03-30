@@ -35,6 +35,7 @@ public class BothDiscountsTest {
         var initialPrice = cereals.price().add(steakPrice).add(breadPrice);
         var firstDiscountPrice = initialPrice.multiply(BigDecimal.valueOf(0.85));
         var expectedTotalPrice = firstDiscountPrice.multiply(BigDecimal.valueOf(0.9));
+
         // When
         var receiptAfterDiscounts = secondDiscount.apply(firstDiscount.apply(receipt));
 
